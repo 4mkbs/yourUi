@@ -6,6 +6,8 @@ import prisma from "@/lib/db";
 import { Sparkles, ArrowRight, ShieldCheck, Flame, Cpu, Layout, Smartphone, LayoutGrid, Users, ShoppingBag, Globe, CheckCircle2, User } from "lucide-react";
 import MiniElementsGrid from "@/components/MiniElementsGrid";
 
+export const revalidate = 3600; // SSG/ISR: Cache this page and revalidate every 1 hour
+
 const TAGS_ROW_1 = ["Buttons", "Navbars", "Footers", "Hero Sections", "Pricing Tables", "Testimonials", "Cards", "Modals", "Forms"];
 const TAGS_ROW_2 = ["Checkboxes", "Toggles", "Dropdowns", "Accordions", "Tabs", "Tooltips", "Badges", "Loaders", "Sliders"];
 const TAGS_ROW_3 = ["Avatars", "Breadcrumbs", "Pagination", "Steppers", "Alerts", "Progress Bars", "Spinners", "Carousels", "Skeletons"];
@@ -46,6 +48,16 @@ export default async function Home() {
   const latestDesigns = await prisma.design.findMany({
     take: 8,
     orderBy: { createdAt: "desc" },
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+      category: true,
+      createdAt: true,
+      views: true,
+      downloads: true,
+      isPremium: true,
+    }
   });
 
   const miniElements = await prisma.design.findMany({
@@ -56,6 +68,10 @@ export default async function Home() {
     },
     take: 15,
     orderBy: { views: "desc" },
+    select: {
+      id: true,
+      slug: true,
+    }
   });
 
   return (

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Rocket } from "lucide-react";
+import ClientIframe from "./ClientIframe";
 
 interface MiniElementsGridProps {
   designs?: any[];
@@ -19,33 +20,8 @@ export default function MiniElementsGrid({ designs = [] }: MiniElementsGridProps
             href={`/designs/${design.slug}`} 
             className="group relative bg-[#0f0f13] border border-white/5 rounded-xl flex items-center justify-center p-0 hover:border-primary/50 transition-colors overflow-hidden h-[120px]"
           >
-            <iframe
-              srcDoc={`
-                <!DOCTYPE html>
-                <html>
-                  <head>
-                    <style>
-                      /* Ensure the body acts as a dark canvas and centers the element */
-                      body { 
-                        margin: 0; 
-                        display: flex; 
-                        align-items: center; 
-                        justify-content: center; 
-                        height: 100vh; 
-                        background: transparent;
-                        overflow: hidden;
-                      }
-                      /* Inject design CSS */
-                      ${design.cssCode}
-                    </style>
-                  </head>
-                  <body>
-                    ${design.htmlCode}
-                  </body>
-                </html>
-              `}
-              sandbox="allow-scripts"
-              tabIndex={-1}
+            <ClientIframe
+              src={`/api/preview/${design.slug}`}
               className="w-[200%] h-[200%] border-0 pointer-events-none transform scale-50 origin-center"
             />
           </Link>

@@ -3,6 +3,7 @@ import Search from "@/components/Search";
 import { CATEGORIES } from "@/lib/designs-data";
 import prisma from "@/lib/db";
 import Link from "next/link";
+import { unstable_cache } from "next/cache";
 
 interface PageProps {
   searchParams: Promise<{
@@ -49,20 +50,38 @@ export default async function DesignsPage({ searchParams }: PageProps) {
 
   const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
   
-  // Fetch paginated data
+  // Fetch paginated data without the massive HTML/CSS string fields
   const paginatedDesigns = await prisma.design.findMany({
     where: whereClause,
     skip: (currentPage - 1) * ITEMS_PER_PAGE,
     take: ITEMS_PER_PAGE,
     orderBy: { createdAt: "desc" },
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+      category: true,
+      createdAt: true,
+      views: true,
+      downloads: true,
+      isPremium: true,
+    }
   });
 
-  // Fetch distinct categories
-  const distinctCats = await prisma.design.findMany({
-    select: { category: true },
-    distinct: ["category"],
-  });
-  const dbCategories = distinctCats.map(c => c.category).sort();
+  // Fetch distinct categories with cache (so it doesn't run DB query on every page load)
+  const getCachedCategories = unstable_cache(
+    async () => {
+      const distinctCats = await prisma.design.findMany({
+        select: { category: true },
+        distinct: ["category"],
+      });
+      return distinctCats.map((c) => c.category).sort();
+    },
+    ["distinct-categories"],
+    { revalidate: 3600 } // Cache for 1 hour
+  );
+  
+  const dbCategories = await getCachedCategories();
 
   return (
     <div className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-8 py-6">

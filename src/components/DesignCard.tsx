@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Eye, Download, ShieldCheck } from "lucide-react";
 import { Design } from "@/lib/designs-data";
+import ClientIframe from "./ClientIframe";
 
 interface DesignCardProps {
   design: Design;
@@ -11,31 +12,8 @@ export default function DesignCard({ design }: DesignCardProps) {
     <div className="design-card group flex flex-col h-full">
       <Link href={`/designs/${design.slug}`} className="relative block aspect-video overflow-hidden bg-card">
         <div className="w-[200%] h-[200%] transform scale-50 origin-top-left transition-transform duration-500 group-hover:scale-[0.52]">
-          <iframe
-            srcDoc={`
-              <!DOCTYPE html>
-              <html>
-                <head>
-                  <style>
-                    body { 
-                      margin: 0; 
-                      display: flex; 
-                      align-items: center; 
-                      justify-content: center; 
-                      min-height: 100vh; 
-                      background: transparent;
-                      overflow: hidden;
-                    }
-                    ${design.cssCode || ''}
-                  </style>
-                </head>
-                <body>
-                  ${design.htmlCode || ''}
-                </body>
-              </html>
-            `}
-            sandbox="allow-scripts"
-            tabIndex={-1}
+          <ClientIframe
+            src={`/api/preview/${design.slug}`}
             className="w-full h-full border-0 pointer-events-none"
           />
         </div>

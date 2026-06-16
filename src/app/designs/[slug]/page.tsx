@@ -5,6 +5,8 @@ import { ArrowLeft, Download, Eye, Calendar, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+export const revalidate = 3600; // SSG/ISR: Cache this individual page for 1 hour
+
 interface DesignDetailsProps {
   params: Promise<{
     slug: string;
